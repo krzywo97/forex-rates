@@ -5,12 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import pl.makrohard.forexrates.databinding.FragmentOverviewBinding
 
 class OverviewFragment : Fragment() {
     private lateinit var viewBinding: FragmentOverviewBinding
+    private val viewModel: OverviewViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,10 +26,14 @@ class OverviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = OverviewAdapter(listOf("a", "b"))
+        val adapter = OverviewAdapter(emptyList())
         val layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
         viewBinding.exchangeRatesRecycler.adapter = adapter
         viewBinding.exchangeRatesRecycler.layoutManager = layoutManager
+
+        viewModel.getExchangeRates().observe(viewLifecycleOwner) { rates ->
+            adapter.addItems(rates)
+        }
     }
 }

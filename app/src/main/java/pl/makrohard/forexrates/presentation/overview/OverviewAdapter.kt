@@ -4,16 +4,17 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import pl.makrohard.forexrates.databinding.OverviewRateItemBinding
+import pl.makrohard.forexrates.domain.model.Rate
 
-class OverviewAdapter(private var items: List<String>) :
+class OverviewAdapter(private var items: List<Rate>) :
     RecyclerView.Adapter<OverviewAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val viewBinding: OverviewRateItemBinding) :
         RecyclerView.ViewHolder(viewBinding.root) {
 
         fun bind(position: Int) {
-            viewBinding.currency.text = items[position]
-            viewBinding.rate.text = items[position]
+            viewBinding.currency.text = items[position].currency
+            viewBinding.rate.text = items[position].rate.toString()
         }
     }
 
@@ -29,5 +30,11 @@ class OverviewAdapter(private var items: List<String>) :
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    fun addItems(items: List<Rate>) {
+        val oldSize = this.items.size
+        this.items += items
+        notifyItemRangeInserted(oldSize, items.size)
     }
 }
