@@ -8,8 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
 import pl.makrohard.forexrates.databinding.FragmentOverviewBinding
 
+@AndroidEntryPoint
 class OverviewFragment : Fragment() {
     private lateinit var viewBinding: FragmentOverviewBinding
     private val viewModel: OverviewViewModel by viewModels()
@@ -32,8 +34,14 @@ class OverviewFragment : Fragment() {
         viewBinding.exchangeRatesRecycler.adapter = adapter
         viewBinding.exchangeRatesRecycler.layoutManager = layoutManager
 
+        viewModel.isLoading().observe(viewLifecycleOwner) { loading ->
+            adapter.setLoading(loading)
+        }
+
         viewModel.getExchangeRates().observe(viewLifecycleOwner) { rates ->
             adapter.addItems(rates)
         }
+
+        viewModel.loadData(listOf("AUD", "CAD", "CHF", "PLN", "USD"))
     }
 }
