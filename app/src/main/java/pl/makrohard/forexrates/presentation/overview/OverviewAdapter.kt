@@ -12,7 +12,8 @@ class OverviewAdapter(private var items: List<Rate>) :
 
     companion object {
         const val ITEM_RATE = 0
-        const val ITEM_LOADING = 1
+        const val ITEM_DATE_HEADER = 1
+        const val ITEM_PROGRESS_BAR = 2
     }
 
     private var isLoading = false
@@ -61,7 +62,7 @@ class OverviewAdapter(private var items: List<Rate>) :
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (position == itemCount - 1 && isLoading) return ITEM_LOADING
+        if (position == itemCount - 1 && isLoading) return ITEM_PROGRESS_BAR
 
         return ITEM_RATE
     }
@@ -73,7 +74,8 @@ class OverviewAdapter(private var items: List<Rate>) :
     }
 
     fun setLoading(loading: Boolean) {
-        if (this.isLoading == loading) return
+        if (isLoading == loading) return
+        isLoading = loading
 
         if (loading) {
             notifyItemInserted(items.size)
