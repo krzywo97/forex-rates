@@ -28,7 +28,7 @@ class OverviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = OverviewAdapter(emptyList())
+        val adapter = OverviewAdapter()
         val layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
         viewBinding.exchangeRatesRecycler.adapter = adapter

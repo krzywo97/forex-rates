@@ -7,8 +7,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import pl.makrohard.forexrates.domain.model.Rate
+import pl.makrohard.forexrates.domain.model.DailyRates
 import pl.makrohard.forexrates.domain.usecase.GetRatesOverviewUseCase
+import pl.makrohard.forexrates.util.DateUtils.getDay
+import pl.makrohard.forexrates.util.DateUtils.getMonth
+import pl.makrohard.forexrates.util.DateUtils.getYear
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -18,20 +22,24 @@ class OverviewViewModel @Inject constructor() : ViewModel() {
     lateinit var getRatesOverviewUseCase: GetRatesOverviewUseCase
 
     private val isLoading = MutableLiveData(false)
-    private val exchangeRates = MutableLiveData<List<Rate>>(emptyList())
+    private val exchangeRates = MutableLiveData<List<DailyRates>>(emptyList())
     private val date = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
 
     fun loadData(currencies: List<String>) {
-        val year = date.get(Calendar.YEAR).toString()
-        val month = date.get(Calendar.MONTH).toString().padStart(2, '0')
-        val day = date.get(Calendar.DAY_OF_MONTH).toString().padStart(2, '0')
+        val year = date.getYear()
+        val month = date.getMonth()
+        val day = date.getDay()
 
         isLoading.value = true
         getRatesOverviewUseCase.invoke(year, month, day, currencies)
             .subscribe { rates ->
                 viewModelScope.launch(Dispatchers.Main) {
+                    val dateFormatter = SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG)
+                    val formattedDate = dateFormatter.format(date.time)
+                    val dailyRates = DailyRates(formattedDate, rates)
+
                     isLoading.value = false
-                    exchangeRates.value = exchangeRates.value?.plus(rates)
+                    exchangeRates.value = exchangeRates.value?.plus(dailyRates)
                 }
             }
 
@@ -42,7 +50,7 @@ class OverviewViewModel @Inject constructor() : ViewModel() {
         return isLoading
     }
 
-    fun getExchangeRates(): LiveData<List<Rate>> {
+    fun getExchangeRates(): LiveData<List<DailyRates>> {
         return exchangeRates
     }
 }
