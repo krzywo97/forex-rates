@@ -29,6 +29,7 @@ class OverviewViewModel @Inject constructor() : ViewModel() {
         val year = date.getYear()
         val month = date.getMonth()
         val day = date.getDay()
+        date.add(Calendar.DATE, -1)
 
         isLoading.value = true
         getRatesOverviewUseCase.invoke(year, month, day, currencies)
@@ -39,11 +40,9 @@ class OverviewViewModel @Inject constructor() : ViewModel() {
                     val dailyRates = DailyRates(formattedDate, rates)
 
                     isLoading.value = false
-                    exchangeRates.value = exchangeRates.value?.plus(dailyRates)
+                    exchangeRates.value = listOf(dailyRates) //exchangeRates.value?.plus(dailyRates)
                 }
             }
-
-        date.add(Calendar.DATE, -1)
     }
 
     fun isLoading(): LiveData<Boolean> {

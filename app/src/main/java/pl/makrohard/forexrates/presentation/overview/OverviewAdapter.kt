@@ -1,5 +1,6 @@
 package pl.makrohard.forexrates.presentation.overview
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -18,16 +19,18 @@ class OverviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private var itemsList = emptyList<Any>()
-    private var isLoading = false
+    var isLoading = false
+        private set
 
     inner class RateViewHolder(private val viewBinding: OverviewRateItemBinding) :
         RecyclerView.ViewHolder(viewBinding.root) {
 
+        @SuppressLint("SetTextI18n")
         fun bind(position: Int) {
             val item = itemsList[position]
             if (item is Rate) {
                 viewBinding.currency.text = item.currency
-                viewBinding.rate.text = item.rate.toString()
+                viewBinding.rate.text = item.rate.toString() + "€"
             }
         }
     }
