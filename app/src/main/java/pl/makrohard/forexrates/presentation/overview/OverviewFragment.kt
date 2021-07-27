@@ -16,6 +16,10 @@ class OverviewFragment : Fragment() {
     private lateinit var viewBinding: FragmentOverviewBinding
     private val viewModel: OverviewViewModel by viewModels()
 
+    companion object {
+        val CURRENCIES = listOf("AUD", "CAD", "CHF", "PLN", "USD")
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -28,11 +32,19 @@ class OverviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = OverviewAdapter(emptyList())
+        val adapter = OverviewAdapter()
         val layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
         viewBinding.exchangeRatesRecycler.adapter = adapter
         viewBinding.exchangeRatesRecycler.layoutManager = layoutManager
+        viewBinding.exchangeRatesRecycler.addOnScrollListener(object :
+            RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (!adapter.isLoading && layoutManager.findLastVisibleItemPosition() > adapter.itemCount - 3) {
+                    viewModel.loadData(CURRENCIES)
+                }
+            }
+        })
 
         viewModel.isLoading().observe(viewLifecycleOwner) { loading ->
             adapter.setLoading(loading)
@@ -42,6 +54,6 @@ class OverviewFragment : Fragment() {
             adapter.addItems(rates)
         }
 
-        viewModel.loadData(listOf("AUD", "CAD", "CHF", "PLN", "USD"))
+        viewModel.loadData(CURRENCIES)
     }
 }
