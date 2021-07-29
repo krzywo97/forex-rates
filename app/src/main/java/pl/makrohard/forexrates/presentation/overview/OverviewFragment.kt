@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import pl.makrohard.forexrates.databinding.FragmentOverviewBinding
+import pl.makrohard.forexrates.presentation.home.MainInteractor
 
 @AndroidEntryPoint
 class OverviewFragment : Fragment() {
@@ -32,7 +33,7 @@ class OverviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val adapter = OverviewAdapter()
+        val adapter = OverviewAdapter(requireActivity() as MainInteractor)
         val layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
         viewBinding.exchangeRatesRecycler.adapter = adapter

@@ -9,8 +9,10 @@ import pl.makrohard.forexrates.databinding.OverviewLoadingItemBinding
 import pl.makrohard.forexrates.databinding.OverviewRateItemBinding
 import pl.makrohard.forexrates.domain.model.DailyRates
 import pl.makrohard.forexrates.domain.model.Rate
+import pl.makrohard.forexrates.presentation.home.MainInteractor
 
-class OverviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class OverviewAdapter(private val mainInteractor: MainInteractor) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         const val ITEM_RATE = 0
@@ -29,8 +31,19 @@ class OverviewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         fun bind(position: Int) {
             val item = itemsList[position]
             if (item is Rate) {
+                viewBinding.root.setOnClickListener {
+                    var date = ""
+                    for (i in position downTo 0) {
+                        if (itemsList[i] is String) {
+                            date = itemsList[i] as String
+                            break
+                        }
+                    }
+
+                    mainInteractor.showDetailFragment(date, item.currency, item.rate)
+                }
                 viewBinding.currency.text = item.currency
-                viewBinding.rate.text = item.rate.toString() + "€"
+                viewBinding.rate.text = item.rate.toString()
             }
         }
     }
