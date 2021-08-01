@@ -6,9 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import pl.makrohard.forexrates.databinding.FragmentOverviewBinding
 import pl.makrohard.forexrates.presentation.home.MainInteractor
 
@@ -52,7 +54,9 @@ class OverviewFragment : Fragment() {
         }
 
         viewModel.getExchangeRates().observe(viewLifecycleOwner) { rates ->
-            adapter.addItems(rates)
+            lifecycleScope.launch {
+                adapter.setItems(rates)
+            }
         }
 
         viewModel.loadData(CURRENCIES)

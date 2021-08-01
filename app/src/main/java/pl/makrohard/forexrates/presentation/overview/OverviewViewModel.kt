@@ -40,7 +40,7 @@ class OverviewViewModel @Inject constructor() : ViewModel() {
                     val dailyRates = DailyRates(formattedDate, rates)
 
                     isLoading.value = false
-                    exchangeRates.value = listOf(dailyRates) //exchangeRates.value?.plus(dailyRates)
+                    exchangeRates.value = exchangeRates.value?.plus(dailyRates)
                 }
             }
     }
