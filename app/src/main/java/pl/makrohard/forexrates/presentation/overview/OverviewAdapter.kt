@@ -3,7 +3,10 @@ package pl.makrohard.forexrates.presentation.overview
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import pl.makrohard.forexrates.databinding.OverviewDateHeaderBinding
 import pl.makrohard.forexrates.databinding.OverviewLoadingItemBinding
 import pl.makrohard.forexrates.databinding.OverviewRateItemBinding
@@ -62,6 +65,35 @@ class OverviewAdapter(private val mainInteractor: MainInteractor) :
     inner class LoadingViewHolder(viewBinding: OverviewLoadingItemBinding) :
         RecyclerView.ViewHolder(viewBinding.root)
 
+    inner class DiffCallback(private val oldList: List<Any>, private val newList: List<Any>) :
+        DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val oldItem = oldList[oldItemPosition]
+            val newItem = newList[newItemPosition]
+
+            if (oldItem == newItem) return true
+            if (oldItem is DailyRates && newItem is DailyRates) {
+                if (oldItem.date == newItem.date) return true
+            }
+            return false
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return areItemsTheSame(
+                oldItemPosition,
+                newItemPosition
+            ) // items are never changed once created
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         when (viewType) {
             ITEM_RATE -> {
@@ -102,7 +134,7 @@ class OverviewAdapter(private val mainInteractor: MainInteractor) :
     }
 
     override fun getItemCount(): Int {
-        return itemsList.size + isLoading.compareTo(false) // compareTo(false) returns 0 if isLoading == false and returns 1 otherwise
+        return itemsList.size + isLoading.compareTo(false)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -113,12 +145,19 @@ class OverviewAdapter(private val mainInteractor: MainInteractor) :
         return ITEM_RATE
     }
 
-    fun addItems(rates: List<DailyRates>) {
+    suspend fun setItems(rates: List<DailyRates>) {
+        val newItemsList = ArrayList<Any>()
         for (r in rates) {
-            val oldSize = this.itemsList.size
-            this.itemsList += r.date
-            this.itemsList += r.rates
-            notifyItemRangeInserted(oldSize, r.rates.size + 1)
+            newItemsList.add(r.date)
+            newItemsList.addAll(r.rates)
+        }
+
+        withContext(Dispatchers.Default) {
+            val diffResult = DiffUtil.calculateDiff(DiffCallback(itemsList, newItemsList))
+            itemsList = newItemsList
+            withContext(Dispatchers.Main) {
+                diffResult.dispatchUpdatesTo(this@OverviewAdapter)
+            }
         }
     }
 

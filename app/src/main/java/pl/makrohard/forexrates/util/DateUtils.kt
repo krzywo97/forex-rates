@@ -8,7 +8,7 @@ object DateUtils {
     }
 
     fun Calendar.getMonth(): String {
-        return get(Calendar.MONTH).toString().padStart(2, '0')
+        return (get(Calendar.MONTH) + 1).toString().padStart(2, '0')
     }
 
     fun Calendar.getYear(): String {
